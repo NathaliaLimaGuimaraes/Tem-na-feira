@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Feiras Livres SP</title>
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:ital,opsz,wght@0,9..144,300;0,9..144,700;0,9..144,900;1,9..144,400&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --verde: #1a5c2e;
+    --verde-claro: #2d8c47;
+    --verde-bg: #f0f7f2;
+    --amarelo: #f5c842;
+    --laranja: #e8722a;
+    --creme: #faf6ee;
+    --branco: #ffffff;
+    --cinza-escuro: #1c1c1c;
+    --cinza-medio: #5a5a5a;
+    --cinza-claro: #e8e4dc;
+    --whatsapp: #25D366;
+    --whatsapp-dark: #128C7E;
+    --sombra: rgba(26,92,46,0.12);
+  }
+  * { margin:0; padding:0; box-sizing:border-box; }
+  body { font-family:'DM Sans',sans-serif; background:var(--creme); color:var(--cinza-escuro); min-height:100vh; }
+
+  header {
+    background:var(--verde); padding:0 20px;
+    position:sticky; top:0; z-index:100;
+    box-shadow:0 2px 20px rgba(0,0,0,0.2);
+  }
+  .header-inner {
+    max-width:1100px; margin:0 auto;
+    display:flex; align-items:center; justify-content:space-between;
+    padding:13px 0;
+  }
+  .logo { display:flex; align-items:center; gap:10px; cursor:pointer; }
+  .logo-icon { width:40px; height:40px; background:var(--amarelo); border-radius:50%; display:flex; align-items:center; justify-content:center; font-size:20px; }
+  .logo-text { font-family:'Fraunces',serif; font-weight:900; font-size:20px; color:#fff; line-height:1.1; }
+  .logo-sub { font-size:10px; font-weight:300; color:rgba(255,255,255,0.65); letter-spacing:.1em; text-transform:uppercase; }
+  .badge { background:var(--amarelo); color:var(--cinza-escuro); font-size:12px; font-weight:700; padding:5px 13px; border-radius:20px; }
+
+  .hero {
+    background:linear-gradient(135deg,var(--verde) 0%,var(--verde-claro) 100%);
+    padding:40px 20px 60px; text-align:center; position:relative; overflow:hidden;
+  }
+  .hero::before {
+    content:''; position:absolute; inset:0;
+    background:url("data:image/svg+xml,%3Csvg width='60' height='60' viewBox='0 0 60 60' xmlns='http://www.w3.org/2000/svg'%3E%3Cg fill='%23ffffff' fill-opacity='0.04'%3E%3Ccircle cx='30' cy='30' r='4'/%3E%3C/g%3E%3C/svg%3E");
+  }
+  .hero-title { font-family:'Fraunces',serif; font-size:clamp(32px,5vw,58px); font-weight:900; color:#fff; line-height:1.05; position:relative; }
+  .hero-title span { color:var(--amarelo); }
+  .hero-sub { font-size:15px; color:rgba(255,255,255,.75); margin-top:10px; font-weight:300; position:relative; }
+
+  .page { display:none; }
+  .page.active { display:block; }
+
+  .filtros-wrapper { max-width:1100px; margin:-26px auto 0; padding:0 20px; position:relative; z-index:10; }
+  .filtros-card { background:var(--branco); border-radius:18px; padding:24px; box-shadow:0 8px 40px var(--sombra); border:1px solid var(--cinza-claro); }
+  .filtros-titulo { font-size:12px; font-weight:600; text-transform:uppercase; letter-spacing:.1em; color:var(--verde); margin-bottom:16px; }
+  .filtros-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(180px,1fr)); gap:12px; }
+  .filtro-group { display:flex; flex-direction:column; gap:5px; }
+  .filtro-label { font-size:11px; font-weight:600; color:var(--cinza-medio); text-transform:uppercase; letter-spacing:.06em; }
+  .filtro-input, .filtro-select {
+    padding:9px 12px; border:2px solid var(--cinza-claro); border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:13px; color:var(--cinza-escuro);
+    background:var(--creme); transition:border-color .2s,box-shadow .2s;
+    appearance:none; -webkit-appearance:none;
+  }
+  .filtro-input:focus, .filtro-select:focus { outline:none; border-color:var(--verde-claro); box-shadow:0 0 0 3px rgba(45,140,71,.12); }
+  .select-wrap { position:relative; }
+  .select-wrap::after { content:'▾'; position:absolute; right:10px; top:50%; transform:translateY(-50%); color:var(--verde); pointer-events:none; font-size:13px; }
+  .filtros-footer { display:flex; align-items:center; justify-content:space-between; margin-top:14px; flex-wrap:wrap; gap:8px; }
+  .count-text { font-size:13px; color:var(--cinza-medio); }
+  .count-text strong { font-family:'Fraunces',serif; font-size:17px; color:var(--verde); }
+  .btn-limpar { padding:8px 16px; border:2px solid var(--cinza-claro); border-radius:8px; background:transparent; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:500; color:var(--cinza-medio); cursor:pointer; transition:all .2s; }
+  .btn-limpar:hover { border-color:var(--laranja); color:var(--laranja); }
+  .tags-ativos { display:flex; flex-wrap:wrap; gap:6px; margin-top:10px; }
+  .tag-ativo { background:rgba(45,140,71,.1); color:var(--verde); border:1px solid rgba(45,140,71,.25); padding:3px 10px; border-radius:20px; font-size:11px; font-weight:500; display:flex; align-items:center; gap:5px; }
+  .tag-ativo button { background:none; border:none; cursor:pointer; color:var(--verde); font-size:13px; line-height:1; padding:0; opacity:.6; }
+  .tag-ativo button:hover { opacity:1; }
+
+  .lista-wrapper { max-width:1100px; margin:28px auto; padding:0 20px 40px; }
+  .lista-titulo { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--cinza-escuro); margin-bottom:18px; }
+  .feiras-grid { display:grid; grid-template-columns:repeat(auto-fill,minmax(310px,1fr)); gap:18px; }
+
+  .feira-card {
+    background:var(--branco); border-radius:16px; border:1px solid var(--cinza-claro);
+    box-shadow:0 2px 10px rgba(0,0,0,.05); overflow:hidden;
+    transition:transform .2s,box-shadow .2s; animation:slideUp .3s ease both;
+  }
+  .feira-card:hover { transform:translateY(-4px); box-shadow:0 12px 32px var(--sombra); }
+  .feira-card-header { background:linear-gradient(135deg,var(--verde),var(--verde-claro)); padding:18px 20px; cursor:pointer; }
+  .feira-card-icon-row { display:flex; align-items:center; gap:12px; margin-bottom:10px; }
+  .feira-card-icon { width:44px; height:44px; background:rgba(255,255,255,.2); border-radius:12px; display:flex; align-items:center; justify-content:center; font-size:22px; flex-shrink:0; }
+  .feira-card-nome { font-family:'Fraunces',serif; font-size:19px; font-weight:700; color:#fff; line-height:1.15; }
+  .feira-card-bairro { font-size:12px; color:var(--amarelo); font-weight:600; text-transform:uppercase; letter-spacing:.06em; }
+  .feira-card-pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:10px; }
+  .feira-pill { font-size:11px; font-weight:600; padding:4px 10px; border-radius:20px; background:rgba(255,255,255,.18); color:#fff; }
+  .feira-card-body { padding:16px 20px; }
+  .feira-card-endereco { font-size:12px; color:var(--cinza-medio); margin-bottom:12px; }
+  .barracas-preview { display:flex; flex-direction:column; gap:6px; }
+  .barraca-preview-item { display:flex; align-items:center; justify-content:space-between; background:var(--verde-bg); border-radius:8px; padding:7px 10px; font-size:12px; gap:8px; }
+  .barraca-preview-nome { font-weight:600; color:var(--cinza-escuro); }
+  .barraca-preview-tipo { color:var(--cinza-medio); white-space:nowrap; }
+  .mais-barracas { font-size:12px; color:var(--verde-claro); font-weight:600; text-align:center; margin-top:8px; padding:6px; border:1px dashed rgba(45,140,71,.3); border-radius:8px; }
+  .feira-card-footer { padding:0 20px 16px; }
+  .btn-ver-feira {
+    width:100%; padding:10px; background:var(--verde); color:#fff; border:none; border-radius:10px;
+    font-family:'DM Sans',sans-serif; font-size:13px; font-weight:600; cursor:pointer;
+    transition:background .2s; display:flex; align-items:center; justify-content:center; gap:6px;
+  }
+  .btn-ver-feira:hover { background:var(--verde-claro); }
+
+  /* DETALHE */
+  .detalhe-wrapper { max-width:800px; margin:0 auto; padding:24px 20px 60px; }
+  .btn-voltar {
+    display:inline-flex; align-items:center; gap:6px; font-size:13px; font-weight:600;
+    color:var(--verde); background:none; border:none; cursor:pointer; padding:0; margin-bottom:20px;
+    transition:gap .15s;
+  }
+  .btn-voltar:hover { gap:10px; }
+  .detalhe-header {
+    background:linear-gradient(135deg,var(--verde),var(--verde-claro));
+    border-radius:20px; padding:28px; margin-bottom:24px; position:relative; overflow:hidden;
+  }
+  .detalhe-header::after { content:'🥬'; position:absolute; right:-10px; bottom:-20px; font-size:100px; opacity:.1; pointer-events:none; }
+  .detalhe-nome { font-family:'Fraunces',serif; font-size:clamp(26px,4vw,36px); font-weight:900; color:#fff; line-height:1.1; }
+  .detalhe-bairro { color:var(--amarelo); font-size:14px; font-weight:600; text-transform:uppercase; letter-spacing:.06em; margin-top:4px; }
+  .detalhe-pills { display:flex; gap:8px; flex-wrap:wrap; margin-top:14px; }
+  .detalhe-pill { font-size:12px; font-weight:600; padding:5px 12px; border-radius:20px; background:rgba(255,255,255,.18); color:#fff; }
+  .detalhe-endereco { font-size:13px; color:rgba(255,255,255,.8); margin-top:10px; }
+
+  .section-header { margin-bottom:14px; }
+  .section-label { font-size:12px; font-weight:700; text-transform:uppercase; letter-spacing:.1em; color:var(--verde); }
+  .section-title { font-family:'Fraunces',serif; font-size:22px; font-weight:700; color:var(--cinza-escuro); }
+
+  .filtro-barraca-wrap { margin-bottom:16px; }
+  .filtro-barraca-input {
+    width:100%; padding:10px 16px; border:2px solid var(--cinza-claro); border-radius:12px;
+    font-family:'DM Sans',sans-serif; font-size:14px; background:var(--branco);
+    transition:border-color .2s,box-shadow .2s;
+  }
+  .filtro-barraca-input:focus { outline:none; border-color:var(--verde-claro); box-shadow:0 0 0 3px rgba(45,140,71,.1); }
+
+  .barracas-list { display:flex; flex-direction:column; gap:12px; }
+
+  .barraca-card {
+    background:var(--branco); border-radius:14px; padding:16px 18px;
+    border:1px solid var(--cinza-claro); box-shadow:0 2px 8px rgba(0,0,0,.04);
+    display:flex; align-items:center; gap:14px; transition:box-shadow .2s;
+    animation:slideUp .25s ease both;
+  }
+  .barraca-card:hover { box-shadow:0 6px 20px var(--sombra); }
+  .barraca-avatar {
+    width:52px; height:52px; border-radius:12px; flex-shrink:0;
+    background:linear-gradient(135deg,var(--verde-bg),#c8ebd4);
+    display:flex; align-items:center; justify-content:center; font-size:26px;
+  }
+  .barraca-info { flex:1; min-width:0; }
+  .barraca-nome { font-size:15px; font-weight:700; color:var(--cinza-escuro); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+  .barraca-feirante { font-size:12px; color:var(--cinza-medio); margin-top:1px; }
+  .barraca-tipo-tag {
+    display:inline-flex; align-items:center;
+    font-size:11px; font-weight:600; padding:3px 9px; border-radius:20px;
+    background:rgba(26,92,46,.08); color:var(--verde); border:1px solid rgba(26,92,46,.15);
+    margin-top:5px;
+  }
+  .barraca-produtos { font-size:12px; color:var(--cinza-medio); margin-top:4px; line-height:1.4; }
+
+  .btn-whatsapp {
+    display:flex; align-items:center; gap:6px; flex-shrink:0;
+    background:var(--whatsapp); color:#fff; border:none; border-radius:12px;
+    padding:10px 14px; font-family:'DM Sans',sans-serif; font-size:13px; font-weight:700;
+    cursor:pointer; text-decoration:none; transition:background .2s,transform .15s;
+    white-space:nowrap;
+  }
+  .btn-whatsapp:hover { background:var(--whatsapp-dark); transform:scale(1.04); }
+  .btn-whatsapp svg { width:18px; height:18px; fill:#fff; flex-shrink:0; }
+  .btn-whatsapp-label { display:inline; }
+
+  .empty-state { text-align:center; padding:60px 24px; color:var(--cinza-medio); grid-column:1/-1; }
+  .empty-state .e-icon { font-size:56px; opacity:.35; margin-bottom:12px; }
+  .empty-state .e-title { font-family:'Fraunces',serif; font-size:22px; color:var(--cinza-escuro); margin-bottom:6px; }
+  .empty-barracas { text-align:center; padding:40px 20px; color:var(--cinza-medio); }
+  .empty-barracas .icon { font-size:48px; opacity:.4; margin-bottom:10px; }
+
+  @keyframes slideUp { from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)} }
+
+  @media(max-width:640px) {
+    .filtros-grid { grid-template-columns:1fr 1fr; }
+    .feiras-grid { grid-template-columns:1fr; }
+    .btn-whatsapp-label { display:none; }
+    .btn-whatsapp { padding:10px 12px; }
+  }
+  @media(max-width:380px) { .filtros-grid { grid-template-columns:1fr; } }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-inner">
+    <div class="logo" onclick="voltarInicio()">
+      <div class="logo-icon">🥬</div>
+      <div>
+        <div class="logo-text">Feiras Livres</div>
+        <div class="logo-sub">São Paulo</div>
+      </div>
+    </div>
+    <div class="badge" id="badge-count">8 feiras</div>
+  </div>
+</header>
+
+<!-- PÁGINA LISTA -->
+<div class="page active" id="page-lista">
+  <section class="hero">
+    <h1 class="hero-title">Encontre sua<br><span>feira preferida</span></h1>
+    <p class="hero-sub">Conheça as barracas e fale direto com o feirante 🥕</p>
+  </section>
+
+  <div class="filtros-wrapper">
+    <div class="filtros-card">
+      <div class="filtros-titulo">🔍 Filtrar feiras</div>
+      <div class="filtros-grid">
+        <div class="filtro-group">
+          <label class="filtro-label">Nome da feira</label>
+          <input type="text" class="filtro-input" id="f-nome" placeholder="Ex: Feira da Lapa…">
+        </div>
+        <div class="filtro-group">
+          <label class="filtro-label">Dia da semana</label>
+          <div class="select-wrap">
+            <select class="filtro-select" id="f-dia">
+              <option value="">Todos os dias</option>
+              <option>Segunda-feira</option><option>Terça-feira</option><option>Quarta-feira</option>
+              <option>Quinta-feira</option><option>Sexta-feira</option><option>Sábado</option><option>Domingo</option>
+            </select>
+          </div>
+        </div>
+        <div class="filtro-group">
+          <label class="filtro-label">Horário</label>
+          <div class="select-wrap">
+            <select class="filtro-select" id="f-horario">
+              <option value="">Todos os horários</option>
+              <option>Manhã (06h–12h)</option><option>Tarde (12h–18h)</option><option>Noite (18h–22h)</option>
+            </select>
+          </div>
+        </div>
+        <div class="filtro-group">
+          <label class="filtro-label">Bairro</label>
+          <div class="select-wrap">
+            <select class="filtro-select" id="f-bairro"><option value="">Todos os bairros</option></select>
+          </div>
+        </div>
+        <div class="filtro-group">
+          <label class="filtro-label">Produto</label>
+          <input type="text" class="filtro-input" id="f-produto" placeholder="Ex: orgânico, peixe…">
+        </div>
+      </div>
+      <div class="filtros-footer">
+        <span class="count-text">Mostrando <strong id="count-display">0</strong> feiras</span>
+        <button class="btn-limpar" onclick="limparFiltros()">✕ Limpar filtros</button>
+      </div>
+      <div class="tags-ativos" id="tags-ativos"></div>
+    </div>
+  </div>
+
+  <div class="lista-wrapper">
+    <div class="lista-titulo">Todas as feiras</div>
+    <div class="feiras-grid" id="feiras-grid"></div>
+  </div>
+</div>
+
+<!-- PÁGINA DETALHE -->
+<div class="page" id="page-detalhe">
+  <div class="detalhe-wrapper">
+    <button class="btn-voltar" onclick="voltarInicio()">← Voltar para as feiras</button>
+    <div class="detalhe-header">
+      <div class="detalhe-nome" id="d-nome"></div>
+      <div class="detalhe-bairro" id="d-bairro"></div>
+      <div class="detalhe-pills" id="d-pills"></div>
+      <div class="detalhe-endereco" id="d-endereco"></div>
+    </div>
+
+    <div class="section-header">
+      <div class="section-label">🏪 Barracas participantes</div>
+      <div class="section-title" id="d-barracas-titulo">Barracas</div>
+    </div>
+
+    <div class="filtro-barraca-wrap">
+      <input type="text" class="filtro-barraca-input" id="f-barraca" placeholder="🔍  Buscar barraca ou produto…" oninput="filtrarBarracas()">
+    </div>
+
+    <div class="barracas-list" id="barracas-list"></div>
+  </div>
+</div>
+
+<script>
+const FEIRAS = [
+  {
+    id:1, nome:"Feira da Lapa", bairro:"Lapa", dia:"Sábado", hora:"06h–12h",
+    turno:"Manhã (06h–12h)", endereco:"R. Catão, 612 – Lapa",
+    barracas:[
+      { nome:"Hortifrúti do Seu Zé", feirante:"José Oliveira", tipo:"Verduras e Legumes", produtos:"Alface, rúcula, espinafre, cenoura, beterraba", emoji:"🥬", whatsapp:"5511991110001" },
+      { nome:"Frutas do Nordeste", feirante:"Maria das Graças", tipo:"Frutas", produtos:"Manga, cajá, umbu, jaca, graviola", emoji:"🍋", whatsapp:"5511991110002" },
+      { nome:"Ovos Caipira da Dona Ana", feirante:"Ana Souza", tipo:"Ovos e Laticínios", produtos:"Ovos caipira, manteiga, nata", emoji:"🥚", whatsapp:"5511991110003" },
+      { nome:"Mel e Própolis do Cachoeiro", feirante:"Pedro Alves", tipo:"Mel e Derivados", produtos:"Mel puro, própolis, pólen, cera de abelha", emoji:"🍯", whatsapp:"5511991110004" },
+      { nome:"Queijaria Mineira", feirante:"Carlos Minas", tipo:"Queijos e Frios", produtos:"Queijo minas, ricota, mozzarella, coalho", emoji:"🧀", whatsapp:"5511991110005" },
+    ]
+  },
+  {
+    id:2, nome:"Feira de Pinheiros", bairro:"Pinheiros", dia:"Sábado", hora:"07h–13h",
+    turno:"Manhã (06h–12h)", endereco:"R. Benedito Calixto – Pinheiros",
+    barracas:[
+      { nome:"Orgânicos Família Tanaka", feirante:"Kenji Tanaka", tipo:"Orgânicos", produtos:"Tomate, abobrinha, pepino, pimentão orgânicos", emoji:"🌱", whatsapp:"5511992220001" },
+      { nome:"Peixaria Mar Azul", feirante:"Raimundo Costa", tipo:"Pescados", produtos:"Tilápia, salmão, camarão, polvo fresco", emoji:"🐟", whatsapp:"5511992220002" },
+      { nome:"Flores da Serra Gaúcha", feirante:"Fernanda Luz", tipo:"Flores", produtos:"Rosas, girassóis, orquídeas, tulipas", emoji:"💐", whatsapp:"5511992220003" },
+      { nome:"Especiarias do Oriente", feirante:"Ibrahim Santos", tipo:"Temperos", produtos:"Açafrão, curry, za'atar, sumac, cominho", emoji:"🌶️", whatsapp:"5511992220004" },
+      { nome:"Cerâmica Viva", feirante:"Lucia Arte", tipo:"Artesanato", produtos:"Peças em cerâmica, vasos, potes decorativos", emoji:"🏺", whatsapp:"5511992220005" },
+    ]
+  },
+  {
+    id:3, nome:"Feira da Liberdade", bairro:"Liberdade", dia:"Domingo", hora:"10h–17h",
+    turno:"Tarde (12h–18h)", endereco:"Pça. da Liberdade – Liberdade",
+    barracas:[
+      { nome:"Sushi & Temaki Hanami", feirante:"Yuki Nakamura", tipo:"Gastronomia Japonesa", produtos:"Sushi, temaki, onigiri, yakisoba", emoji:"🍱", whatsapp:"5511993330001" },
+      { nome:"Mochi e Doces Japoneses", feirante:"Hana Watanabe", tipo:"Doces e Confeitaria", produtos:"Mochi, daifuku, dorayaki, taiyaki", emoji:"🍡", whatsapp:"5511993330002" },
+      { nome:"Temperos Yamamoto", feirante:"Ken Yamamoto", tipo:"Temperos e Molhos", produtos:"Missô, shoyu artesanal, dashi, pasta de gergelim", emoji:"🧉", whatsapp:"5511993330003" },
+      { nome:"Hortaliças Família Ito", feirante:"Shiro Ito", tipo:"Hortaliças", produtos:"Nabo, rabanete, shissô, gengibre, cebolinha", emoji:"🥬", whatsapp:"5511993330004" },
+    ]
+  },
+  {
+    id:4, nome:"Feira da Vila Madalena", bairro:"Vila Madalena", dia:"Sábado", hora:"07h–13h",
+    turno:"Manhã (06h–12h)", endereco:"R. Harmonia – Vila Madalena",
+    barracas:[
+      { nome:"Pão Artesanal da Vila", feirante:"Bruno Padeiro", tipo:"Padaria Artesanal", produtos:"Sourdough, pão de fermentação natural, focaccia, brioche", emoji:"🍞", whatsapp:"5511994440001" },
+      { nome:"Vinhos Naturais & Cervejas", feirante:"Diego Bebidas", tipo:"Bebidas Artesanais", produtos:"Vinho natural, cerveja artesanal, kombucha", emoji:"🍷", whatsapp:"5511994440002" },
+      { nome:"Frutas Exóticas Tropical", feirante:"Roberto Tropical", tipo:"Frutas Exóticas", produtos:"Carambola, rambutan, pitaya, mangostão, cupuaçu", emoji:"🍍", whatsapp:"5511994440003" },
+      { nome:"Queijos Especiais Canastra", feirante:"Simone Queijos", tipo:"Queijaria Especial", produtos:"Canastra curado, coalho defumado, brie artesanal", emoji:"🧀", whatsapp:"5511994440004" },
+    ]
+  },
+  {
+    id:5, nome:"Feira do Pacaembu", bairro:"Pacaembu", dia:"Domingo", hora:"06h–12h",
+    turno:"Manhã (06h–12h)", endereco:"Pça. Charles Miller – Pacaembu",
+    barracas:[
+      { nome:"Frango Caipira do Interior", feirante:"Jair Frango", tipo:"Aves Caipiras", produtos:"Frango caipira inteiro, cortes, ovos caipira", emoji:"🐔", whatsapp:"5511995550001" },
+      { nome:"Mel Puro Sítio Verde", feirante:"Benedito Apicultor", tipo:"Apicultura", produtos:"Mel de eucalipto, mel silvestre, geleia real", emoji:"🍯", whatsapp:"5511995550002" },
+      { nome:"Legumes Frescos da Roça", feirante:"Toninho Roça", tipo:"Legumes e Raízes", produtos:"Batata doce, mandioca, inhame, cará, aipim", emoji:"🥕", whatsapp:"5511995550003" },
+    ]
+  },
+  {
+    id:6, nome:"Feira Noturna do Brás", bairro:"Brás", dia:"Sexta-feira", hora:"18h–22h",
+    turno:"Noite (18h–22h)", endereco:"R. Oriente, 600 – Brás",
+    barracas:[
+      { nome:"Temperos e Ervas da Vó", feirante:"Tereza Ervas", tipo:"Ervas e Temperos", produtos:"Alecrim, manjericão, tomilho, erva-doce, sálvia", emoji:"🌿", whatsapp:"5511996660001" },
+      { nome:"Frios e Embutidos Silva", feirante:"Paulo Silva", tipo:"Frios e Embutidos", produtos:"Salame, copa, presunto, linguiça artesanal", emoji:"🥩", whatsapp:"5511996660002" },
+      { nome:"Laticínios Fazenda Alegre", feirante:"Rosa Leiteira", tipo:"Laticínios", produtos:"Leite fresco, iogurte natural, creme de leite, manteiga", emoji:"🥛", whatsapp:"5511996660003" },
+      { nome:"Frutas da Estação Santos", feirante:"Clodoaldo Santos", tipo:"Frutas", produtos:"Banana, laranja, abacaxi, mamão, melancia", emoji:"🍌", whatsapp:"5511996660004" },
+    ]
+  },
+  {
+    id:7, nome:"Feira da Aclimação", bairro:"Aclimação", dia:"Terça-feira", hora:"06h–12h",
+    turno:"Manhã (06h–12h)", endereco:"Pça. Silvio Romero – Aclimação",
+    barracas:[
+      { nome:"Verduras Hidropônicas BioFresh", feirante:"Marcos Bio", tipo:"Hidropônico", produtos:"Alface hidropônica, rúcula, agrião, manjericão", emoji:"🌱", whatsapp:"5511997770001" },
+      { nome:"Ervas Medicinais da Natureza", feirante:"Conceição Ervas", tipo:"Plantas Medicinais", produtos:"Camomila, hortelã, boldo, espinheira santa, calêndula", emoji:"🌼", whatsapp:"5511997770002" },
+    ]
+  },
+  {
+    id:8, nome:"Feira do Ibirapuera", bairro:"Ibirapuera", dia:"Domingo", hora:"08h–14h",
+    turno:"Manhã (06h–12h)", endereco:"Pça. Gal. Gentil Falcão – Ibirapuera",
+    barracas:[
+      { nome:"Orgânicos Certificados Verde Vida", feirante:"Patrícia Verde", tipo:"Orgânicos", produtos:"Cenoura, beterraba, tomate, abobrinha 100% orgânicos", emoji:"🥦", whatsapp:"5511998880001" },
+      { nome:"Sucos Naturais Fruta Fresca", feirante:"Claudinho Sucos", tipo:"Sucos e Vitaminas", produtos:"Suco de laranja, açaí, caldo de cana, vitamina de frutas", emoji:"🥤", whatsapp:"5511998880002" },
+      { nome:"Pão Levain Artesanal", feirante:"Alice Pães", tipo:"Padaria Artesanal", produtos:"Pão de centeio, integral, baguete, challah", emoji:"🍞", whatsapp:"5511998880003" },
+      { nome:"Mel & Geleias do Cerrado", feirante:"Wander Cerrado", tipo:"Mel e Geleias", produtos:"Mel do cerrado, geleia de jabuticaba, goiaba, maracujá", emoji:"🍯", whatsapp:"5511998880004" },
+    ]
+  },
+];
+
+let feiraAtual = null;
+let filtroAtivo = { nome:'', dia:'', turno:'', bairro:'', produto:'' };
+
+// Init bairros
+const bairros = [...new Set(FEIRAS.map(f => f.bairro))].sort();
+const selBairro = document.getElementById('f-bairro');
+bairros.forEach(b => { const o = document.createElement('option'); o.value = o.textContent = b; selBairro.appendChild(o); });
+
+['f-nome','f-produto'].forEach(id => document.getElementById(id).addEventListener('input', filtrar));
+['f-dia','f-horario','f-bairro'].forEach(id => document.getElementById(id).addEventListener('change', filtrar));
+
+filtrar();
+
+function filtrar() {
+  const nome    = document.getElementById('f-nome').value.toLowerCase().trim();
+  const dia     = document.getElementById('f-dia').value;
+  const turno   = document.getElementById('f-horario').value;
+  const bairro  = document.getElementById('f-bairro').value;
+  const produto = document.getElementById('f-produto').value.toLowerCase().trim();
+  filtroAtivo   = { nome, dia, turno, bairro, produto };
+
+  const res = FEIRAS.filter(f =>
+    (!nome    || f.nome.toLowerCase().includes(nome)) &&
+    (!dia     || f.dia === dia) &&
+    (!turno   || f.turno === turno) &&
+    (!bairro  || f.bairro === bairro) &&
+    (!produto || f.barracas.some(b => b.produtos.toLowerCase().includes(produto) || b.tipo.toLowerCase().includes(produto)))
+  );
+
+  renderCards(res);
+  renderTags();
+  document.getElementById('count-display').textContent = res.length;
+  document.getElementById('badge-count').textContent = res.length + ' feiras';
+}
+
+const ICONS = ['🥬','🍎','🥕','🌽','🍋','🍅','🫑','🌿','🐟','🍓','🧅','🌾'];
+
+function renderCards(lista) {
+  const grid = document.getElementById('feiras-grid');
+  if (!lista.length) {
+    grid.innerHTML = `<div class="empty-state"><div class="e-icon">🥕</div><div class="e-title">Nenhuma feira encontrada</div><p>Tente ajustar os filtros.</p></div>`;
+    return;
+  }
+  grid.innerHTML = lista.map((f, i) => {
+    const preview = f.barracas.slice(0,3);
+    const resto   = f.barracas.length - 3;
+    const previewHTML = preview.map(b =>
+      `<div class="barraca-preview-item">
+        <span>${b.emoji} <span class="barraca-preview-nome">${b.nome}</span></span>
+        <span class="barraca-preview-tipo">${b.tipo}</span>
+      </div>`).join('');
+    const maisHTML = resto > 0 ? `<div class="mais-barracas">+ ${resto} barraca${resto>1?'s':''} nesta feira</div>` : '';
+    return `
+    <div class="feira-card" style="animation-delay:${(i%8)*45}ms">
+      <div class="feira-card-header" onclick="abrirFeira(${f.id})">
+        <div class="feira-card-icon-row">
+          <div class="feira-card-icon">${ICONS[i%ICONS.length]}</div>
+          <div>
+            <div class="feira-card-nome">${f.nome}</div>
+            <div class="feira-card-bairro">📍 ${f.bairro}</div>
+          </div>
+        </div>
+        <div class="feira-card-pills">
+          <span class="feira-pill">📅 ${f.dia}</span>
+          <span class="feira-pill">🕐 ${f.hora}</span>
+          <span class="feira-pill">🏪 ${f.barracas.length} barracas</span>
+        </div>
+      </div>
+      <div class="feira-card-body">
+        <div class="feira-card-endereco">📌 ${f.endereco}</div>
+        <div class="barracas-preview">${previewHTML}</div>
+        ${maisHTML}
+      </div>
+      <div class="feira-card-footer">
+        <button class="btn-ver-feira" onclick="abrirFeira(${f.id})">Ver todas as barracas →</button>
+      </div>
+    </div>`;
+  }).join('');
+}
+
+function abrirFeira(id) {
+  feiraAtual = FEIRAS.find(f => f.id === id);
+  if (!feiraAtual) return;
+  document.getElementById('d-nome').textContent    = feiraAtual.nome;
+  document.getElementById('d-bairro').textContent  = '📍 ' + feiraAtual.bairro;
+  document.getElementById('d-pills').innerHTML     =
+    `<span class="detalhe-pill">📅 ${feiraAtual.dia}</span>
+     <span class="detalhe-pill">🕐 ${feiraAtual.hora}</span>
+     <span class="detalhe-pill">🏪 ${feiraAtual.barracas.length} barracas</span>`;
+  document.getElementById('d-endereco').textContent = '📌 ' + feiraAtual.endereco;
+  document.getElementById('d-barracas-titulo').textContent = feiraAtual.nome;
+  document.getElementById('f-barraca').value = '';
+  renderBarracas(feiraAtual.barracas);
+  document.getElementById('page-lista').classList.remove('active');
+  document.getElementById('page-detalhe').classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function renderBarracas(lista) {
+  const cont = document.getElementById('barracas-list');
+  if (!lista.length) {
+    cont.innerHTML = `<div class="empty-barracas"><div class="icon">🏪</div><p>Nenhuma barraca encontrada.</p></div>`;
+    return;
+  }
+  const waSVG = `<svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>`;
+  cont.innerHTML = lista.map((b, i) => `
+    <div class="barraca-card" style="animation-delay:${i*50}ms">
+      <div class="barraca-avatar">${b.emoji}</div>
+      <div class="barraca-info">
+        <div class="barraca-nome">${b.nome}</div>
+        <div class="barraca-feirante">👤 ${b.feirante}</div>
+        <div class="barraca-tipo-tag">${b.tipo}</div>
+        <div class="barraca-produtos">${b.produtos}</div>
+      </div>
+      <a class="btn-whatsapp"
+         href="https://wa.me/${b.whatsapp}?text=${encodeURIComponent('Olá ' + b.feirante + '! Vi sua barraca "' + b.nome + '" na ' + feiraAtual.nome + ' pelo app Feiras Livres SP 🥬 Gostaria de mais informações!')}"
+         target="_blank" rel="noopener">
+        ${waSVG}
+        <span class="btn-whatsapp-label">WhatsApp</span>
+      </a>
+    </div>`).join('');
+}
+
+function filtrarBarracas() {
+  if (!feiraAtual) return;
+  const q = document.getElementById('f-barraca').value.toLowerCase().trim();
+  renderBarracas(feiraAtual.barracas.filter(b =>
+    !q || b.nome.toLowerCase().includes(q) || b.produtos.toLowerCase().includes(q) || b.tipo.toLowerCase().includes(q) || b.feirante.toLowerCase().includes(q)
+  ));
+}
+
+function voltarInicio() {
+  feiraAtual = null;
+  document.getElementById('page-detalhe').classList.remove('active');
+  document.getElementById('page-lista').classList.add('active');
+  window.scrollTo({ top:0, behavior:'smooth' });
+}
+
+function renderTags() {
+  const cont = document.getElementById('tags-ativos');
+  const tags = [];
+  if (filtroAtivo.nome)    tags.push({ label:`Nome: ${filtroAtivo.nome}`, id:'f-nome' });
+  if (filtroAtivo.dia)     tags.push({ label:filtroAtivo.dia, id:'f-dia' });
+  if (filtroAtivo.turno)   tags.push({ label:filtroAtivo.turno.split(' ')[0], id:'f-horario' });
+  if (filtroAtivo.bairro)  tags.push({ label:filtroAtivo.bairro, id:'f-bairro' });
+  if (filtroAtivo.produto) tags.push({ label:`Produto: ${filtroAtivo.produto}`, id:'f-produto' });
+  cont.innerHTML = tags.map(t =>
+    `<span class="tag-ativo">${t.label}<button onclick="limparTag('${t.id}')">✕</button></span>`
+  ).join('');
+}
+
+function limparTag(id) { document.getElementById(id).value = ''; filtrar(); }
+function limparFiltros() { ['f-nome','f-dia','f-horario','f-bairro','f-produto'].forEach(id => document.getElementById(id).value = ''); filtrar(); }
+</script>
+</body>
+</html>
