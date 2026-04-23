@@ -439,6 +439,169 @@
   </div>
 </div>
 
+<style>
+  /* Novos estilos para o Carrinho e Checkout */
+  .btn-add {
+    background: var(--verde-claro);
+    color: white;
+    border: none;
+    padding: 5px 10px;
+    border-radius: 15px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    margin: 5px;
+    transition: 0.2s;
+  }
+  .btn-add:hover { background: var(--verde-escuro); }
+
+  #cart-bar {
+    position: fixed;
+    bottom: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    background: var(--verde);
+    color: white;
+    padding: 15px 25px;
+    border-radius: 30px;
+    display: none;
+    align-items: center;
+    gap: 15px;
+    box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+    z-index: 1000;
+    cursor: pointer;
+  }
+
+  .modal-checkout {
+    position: fixed;
+    top: 0; left: 0; width: 100%; height: 100%;
+    background: rgba(0,0,0,0.7);
+    display: none;
+    justify-content: center;
+    align-items: center;
+    z-index: 2000;
+  }
+  .modal-content {
+    background: white;
+    padding: 25px;
+    border-radius: 20px;
+    width: 90%;
+    max-width: 400px;
+  }
+  .input-checkout {
+    width: 100%;
+    padding: 10px;
+    margin: 10px 0;
+    border: 1px solid var(--cinza-claro);
+    border-radius: 8px;
+  }
+</style>
+
+<div id="cart-bar" onclick="abrirCheckout()">
+  <span id="cart-count">0 itens</span>
+  <span style="font-weight: bold;">Ver Pedido</span>
+  <span id="cart-total">R$ 0,00</span>
+</div>
+
+<div id="modal-checkout" class="modal-checkout">
+  <div class="modal-content">
+    <h3>Finalizar Pedido</h3>
+    <div id="resumo-pedido" style="max-height: 200px; overflow-y: auto; margin-bottom: 15px;"></div>
+    <input type="text" id="cli-nome" class="input-checkout" placeholder="Seu Nome">
+    <input type="text" id="cli-end" class="input-checkout" placeholder="Endereço de Entrega">
+    <button class="btn-primary" onclick="enviarPedido()" style="width: 100%;">Enviar para o Entregador</button>
+    <button onclick="fecharCheckout()" style="background:none; border:none; color:var(--cinza-medio); width: 100%; margin-top: 10px; cursor:pointer;">Cancelar</button>
+  </div>
+</div>
+
+<script>
+let carrinho = [];
+let total = 0;
+
+// Função para adicionar ao carrinho
+function adicionar(nomeProd, preco, banca) {
+    carrinho.push({ nome: nomeProd, preco: preco, banca: banca });
+    atualizarCarrinho();
+}
+
+function atualizarCarrinho() {
+    const bar = document.getElementById('cart-bar');
+    const count = document.getElementById('cart-count');
+    const totalDisp = document.getElementById('cart-total');
+    
+    total = carrinho.reduce((acc, item) => acc + item.preco, 0);
+    
+    if (carrinho.length > 0) {
+        bar.style.display = 'flex';
+        count.innerText = `${carrinho.length} ${carrinho.length === 1 ? 'item' : 'itens'}`;
+        totalDisp.innerText = `R$ ${total.toFixed(2).replace('.', ',')}`;
+    } else {
+        bar.style.display = 'none';
+    }
+}
+
+// Adaptando a renderização das barracas para incluir botões de compra
+function renderBarracas(lista) {
+  const cont = document.getElementById('grid-barracas');
+  cont.innerHTML = lista.map(b => `
+    <div class="card-barraca">
+      <div class="barraca-header">
+        <span class="tag-tipo">${b.tipo}</span>
+        <h4>${b.nome}</h4>
+        <small>Feirante: ${b.feirante}</small>
+      </div>
+      <div style="padding: 15px;">
+        <p style="font-size: 0.9rem; color: var(--cinza-medio);">Disponíveis hoje:</p>
+        <div style="display: flex; flex-wrap: wrap;">
+            ${b.produtos.split(',').map(p => `
+                <button class="btn-add" onclick="adicionar('${p.trim()}', 10.00, '${b.nome}')">
+                    + ${p.trim()} (R$ 10)
+                </button>
+            `).join('')}
+        </div>
+      </div>
+    </div>
+  `).join('');
+}
+
+function abrirCheckout() {
+    const resumo = document.getElementById('resumo-pedido');
+    resumo.innerHTML = carrinho.map(i => `
+        <div style="display:flex; justify-content:space-between; font-size:0.9rem; margin-bottom:5px;">
+            <span>${i.nome} (${i.banca})</span>
+            <span>R$ ${i.preco.toFixed(2)}</span>
+        </div>
+    `).join('');
+    document.getElementById('modal-checkout').style.display = 'flex';
+}
+
+function fecharCheckout() {
+    document.getElementById('modal-checkout').style.display = 'none';
+}
+
+function enviarPedido() {
+    const nome = document.getElementById('cli-nome').value;
+    const end = document.getElementById('cli-end').value;
+    
+    if(!nome || !end) return alert("Preencha nome e endereço!");
+
+    let texto = `*Novo Pedido - Tem na Feira*%0A%0A`;
+    texto += `*Cliente:* ${nome}%0A`;
+    texto += `*Endereço:* ${end}%0A%0A`;
+    texto += `*Itens:*%0A`;
+    carrinho.forEach(i => texto += `- ${i.nome} (Banca: ${i.banca})%0A`);
+    texto += `%0A*Total: R$ ${total.toFixed(2)}*`;
+
+    // Simula envio para um número central de logística (Ex: seu número ou do entregador)
+    window.open(`https://wa.me/5511999999999?text=${texto}`, '_blank');
+    
+    carrinho = [];
+    atualizarCarrinho();
+    fecharCheckout();
+}
+
+// Mantenha o restante das suas funções originais de filtro e navegação abaixo
+</script>
+  
 <script>
 const FEIRAS = [
   {
